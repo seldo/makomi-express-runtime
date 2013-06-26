@@ -1,19 +1,14 @@
 var fs = require('fs')
 
+/**
+ * Load the app config from a file, or provide default config
+ */
 exports.loadConfig = function(path,cb) {
 
   var defaultConfig = {
-    directories: {
-      workspace: __dirname + '/workspace/',
-      makomi: '.makomi/'
-    },
-    files: {
-      makomi: 'makomi.json',
-      routes: 'routes.json'
-    },
     sessions: {
       key: 'mks',
-      secret: 'some secret key here'
+      secret: 'default secrets are not really secret, are they?'
     }
   }
 
