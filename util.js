@@ -17,7 +17,7 @@ exports.loadConfig = function(path,cb) {
   } else {
     fs.readFile(path,'utf-8',function(er,data) {
       if(er) {
-        throw new Exception(er);
+        throw new Error(er);
       }
       if(data) {
         // FIXME: handle parse errors
