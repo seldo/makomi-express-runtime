@@ -95,12 +95,9 @@ exports.renderFragment = function(source,context) {
  */
 exports.compile = function(layout,cb) {
 
-  console.log("Compiling " + layout.source)
-
   // render the full view via handlebars -- but not yet
   var renderView = function(file,context,cb) {
     var templateFile = exports.templateRoot + file + exports.templateExtension
-    console.log("Rendering template " + templateFile)
     fs.readFile(templateFile,'utf-8',function(er,data) {
       var renderedView = exports.renderFragment(data,context)
       cb(renderedView)
@@ -120,10 +117,12 @@ exports.compile = function(layout,cb) {
 
     for(var t in layout.templates) {
 
+      if (!layout.templates[t].context) layout.templates[t].context = {}
+
       if (layout.context) {
         // merge parent context into child
         for (var p in layout.context) {
-          if (!layout.templates[t].context[p]) {
+          if (!layout.templates[t].context.hasOwnProperty(p)) {
             layout.templates[t].context[p] = layout.context[p]
           }
         }
