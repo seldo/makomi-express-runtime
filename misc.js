@@ -9,6 +9,8 @@ exports.socketController = {
   start: function(socketServer) {
     socketServer.on('sconnection', function (client,session) {
 
+      // FIXME: this should wrap a require to a standard-named function
+
       client.on('routechange-in', function (data) {
         console.log("Route selected: " + data.route);
         socketServer.sockets.emit('routechange-out', {
