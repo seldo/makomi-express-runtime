@@ -28,7 +28,7 @@ exports.loadConfig = function(path,cb) {
         }
         cb(defaultConfig)
       } else {
-        throw new Exception("No config file at " + path)
+        throw new Error("Config file empty at " + path)
       }
     })
   }
