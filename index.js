@@ -90,10 +90,14 @@ exports.renderFragment = function(source,context) {
  * Given a tree of templates and contexts, do a depth-first rendering of
  * the entire tree and return the result.
  * TODO: caching, optimization
+ * FIXME: the parameter order here is gross.
+ * FIXME: the whole concept of originalRef seems like a hack.
  * @param layout
  * @param cb
  */
-exports.compile = function(layout,cb,alternateRoot) {
+exports.compile = function(layout,cb,alternateRoot,originalRef) {
+
+  console.log("Called with original ref " + originalRef)
 
   var viewRoot = exports.templateRoot
   if(alternateRoot) viewRoot = alternateRoot
@@ -104,10 +108,10 @@ exports.compile = function(layout,cb,alternateRoot) {
     fs.readFile(templateFile,'utf-8',function(er,data) {
       if (er) {
         console.log("Failed to read template file at " + templateFile)
-        cb('') // return blank string
+        cb('',originalRef) // return blank string
       } else {
         var renderedView = exports.renderFragment(data,context)
-        cb(renderedView)
+        cb(renderedView,originalRef)
       }
     })
   }
@@ -138,11 +142,15 @@ exports.compile = function(layout,cb,alternateRoot) {
         layout.context = {}
       }
 
+      console.log("Compiled context for template " + t)
+      console.log(layout.templates[t])
+
       // compile child and spit result into string
-      exports.compile(layout.templates[t],function(renderedView) {
-        layout.context[t] = renderedView;
+      exports.compile(layout.templates[t],function(renderedView,passedRef) {
+        console.log("Ref passed back was " + passedRef)
+        layout.context[passedRef] = renderedView;
         templateHandled()
-      },alternateRoot)
+      },alternateRoot,t)
     }
   } else {
     // if no kids, go straight to rendering

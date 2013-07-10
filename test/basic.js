@@ -18,4 +18,4 @@ var layout = {
 mkRun.compile(layout,function(renderedView) {
   console.log("View rendered:")
   console.log(renderedView)
-})
+},process.cwd()+'/test/views/')
