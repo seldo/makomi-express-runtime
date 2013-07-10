@@ -93,11 +93,14 @@ exports.renderFragment = function(source,context) {
  * @param layout
  * @param cb
  */
-exports.compile = function(layout,cb) {
+exports.compile = function(layout,cb,alternateRoot) {
+
+  var viewRoot = exports.templateRoot
+  if(alternateRoot) viewRoot = alternateRoot
 
   // render the full view via handlebars -- but not yet
   var renderView = function(file,context,cb) {
-    var templateFile = exports.templateRoot + file + exports.templateExtension
+    var templateFile = viewRoot + file + exports.templateExtension
     fs.readFile(templateFile,'utf-8',function(er,data) {
       if (er) {
         console.log("Failed to read template file at " + templateFile)
@@ -139,7 +142,7 @@ exports.compile = function(layout,cb) {
       exports.compile(layout.templates[t],function(renderedView) {
         layout.context[t] = renderedView;
         templateHandled()
-      })
+      },alternateRoot)
     }
   } else {
     // if no kids, go straight to rendering
