@@ -99,8 +99,13 @@ exports.compile = function(layout,cb) {
   var renderView = function(file,context,cb) {
     var templateFile = exports.templateRoot + file + exports.templateExtension
     fs.readFile(templateFile,'utf-8',function(er,data) {
-      var renderedView = exports.renderFragment(data,context)
-      cb(renderedView)
+      if (er) {
+        console.log("Failed to read template file at " + templateFile)
+        cb('') // return blank string
+      } else {
+        var renderedView = exports.renderFragment(data,context)
+        cb(renderedView)
+      }
     })
   }
 
