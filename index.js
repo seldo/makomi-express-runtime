@@ -5,8 +5,9 @@
  */
 
 var fs = require('fs'),
-    hb = require('handlebars'),
-    _ = require('underscore');
+  hb = require('handlebars'),
+  _ = require('underscore'),
+  util = require('util');
 
 exports.templateRoot = process.cwd() + '/views/'
 exports.templateExtension = '.hbs'
@@ -95,9 +96,10 @@ exports.renderFragment = function(source,context) {
  * @param layout
  * @param cb
  */
-exports.compile = function(layout,cb,alternateRoot,originalRef) {
+exports.compile = function(layout,cb,alternateRoot) {
 
-  console.log("Called with original ref " + originalRef)
+  console.log("Processing:")
+  console.log(layout)
 
   var viewRoot = exports.templateRoot
   if(alternateRoot) viewRoot = alternateRoot
@@ -108,10 +110,10 @@ exports.compile = function(layout,cb,alternateRoot,originalRef) {
     fs.readFile(templateFile,'utf-8',function(er,data) {
       if (er) {
         console.log("Failed to read template file at " + templateFile)
-        cb('',originalRef) // return blank string
+        cb('') // return blank string
       } else {
         var renderedView = exports.renderFragment(data,context)
-        cb(renderedView,originalRef)
+        cb(renderedView)
       }
     })
   }
@@ -119,41 +121,75 @@ exports.compile = function(layout,cb,alternateRoot,originalRef) {
   // compile all children first, recursively
   if(layout.templates) {
 
-    var templateCount = Object.keys(layout.templates).length
-    var templateHandled = function() {
-      templateCount--;
-      if (templateCount == 0) {
+    var mergeContext = function(template,parentContext) {
+      for(var p in parentContext) {
+        if (!template.context.hasOwnProperty(p)) {
+          template.context[p] = parentContext[p]
+        }
+      }
+      return template
+    }
+
+    // handle trivial case
+    if (_.size(layout.templates) == 0) {
+      console.log("Empty set of templates")
+      renderView(layout.source,layout.context,cb)
+    }
+
+    for(var slotName in layout.templates) {
+
+      var template = layout.templates[slotName]
+      var complete = function() {
+        // render when all children are done
+        console.log("All templates compiled: " + layout.context.name)
         renderView(layout.source,layout.context,cb)
       }
-    }
 
-    for(var t in layout.templates) {
-
-      if (!layout.templates[t].context) layout.templates[t].context = {}
-
-      if (layout.context) {
-        // merge parent context into child
-        for (var p in layout.context) {
-          if (!layout.templates[t].context.hasOwnProperty(p)) {
-            layout.templates[t].context[p] = layout.context[p]
-          }
-        }
-      } else {
-        layout.context = {}
+      var compileChild = function(template,cb,ref) {
+        exports.compile(template,function(renderedView) {
+          cb(renderedView,ref)
+        },alternateRoot)
       }
 
-      console.log("Compiled context for template " + t)
-      console.log(layout.templates[t])
+      if(!util.isArray(template)) {
+        console.log("basic template: " + slotName)
+        // compile the template into a string and put it into the context
+        template = mergeContext(template,layout.context)
+        compileChild(template,function(renderedView) {
+          layout.context[slotName] = renderedView
+          complete()
+        })
+      } else {
+        console.log("list of templates: " + slotName)
+        // compile each of the list of templates into strings
+        // then concatenate them into one big string in the context
+        var templateList = template
+        var compiledTemplates = []
+        var subCount = templateList.length
+        console.log("Child count: " + subCount)
+        var subComplete = function() {
+          console.log("subcomplete")
+          console.log(compiledTemplates)
+          subCount--
+          if (subCount == 0) {
+            layout.context[slotName] = compiledTemplates.join("\n")
+            complete()
+          }
+        }
+        templateList.forEach(function(template,index) {
+          template = mergeContext(template,layout.context)
+          compileChild(template,function(renderedView) {
+            compiledTemplates[index] = renderedView
+            subComplete()
+          })
+        })
+      }
 
-      // compile child and spit result into string
-      exports.compile(layout.templates[t],function(renderedView,passedRef) {
-        console.log("Ref passed back was " + passedRef)
-        layout.context[passedRef] = renderedView;
-        templateHandled()
-      },alternateRoot,t)
     }
+
   } else {
     // if no kids, go straight to rendering
+    console.log("No templates, processing")
     renderView(layout.source,layout.context,cb)
   }
 
