@@ -139,6 +139,7 @@ exports.compile = function(layout,cb,alternateRoot) {
       renderView(layout.source,layout.context,cb)
     }
 
+    // replace all named slots
     for(var slotName in layout.templates) {
 
       var template = layout.templates[slotName]
@@ -156,10 +157,10 @@ exports.compile = function(layout,cb,alternateRoot) {
       if(!util.isArray(template)) {
         // compile the template into a string and put it into the context
         template = mergeContext(template,layout.context)
-        compileChild(template,function(renderedView) {
-          layout.context[slotName] = renderedView
+        compileChild(template,function(renderedView,slotReturned) {
+          layout.context[slotReturned] = renderedView
           complete()
-        })
+        },slotName)
       } else {
         // compile each of the list of templates into strings
         // then concatenate them into one big string in the context
@@ -175,10 +176,10 @@ exports.compile = function(layout,cb,alternateRoot) {
         }
         templateList.forEach(function(template,index) {
           template = mergeContext(template,layout.context)
-          compileChild(template,function(renderedView) {
-            compiledTemplates[index] = renderedView
+          compileChild(template,function(renderedView,indexReturned) {
+            compiledTemplates[indexReturned] = renderedView
             subComplete()
-          })
+          },index)
         })
       }
 
