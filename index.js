@@ -101,6 +101,8 @@ exports.compile = function(layout,cb,alternateRoot) {
   console.log("Processing:")
   console.log(layout)
 
+  if(!layout.context) layout.context = {}
+
   var viewRoot = exports.templateRoot
   if(alternateRoot) viewRoot = alternateRoot
 
@@ -122,6 +124,7 @@ exports.compile = function(layout,cb,alternateRoot) {
   if(layout.templates) {
 
     var mergeContext = function(template,parentContext) {
+      if(!template.context) template.context = {}
       for(var p in parentContext) {
         if (!template.context.hasOwnProperty(p)) {
           template.context[p] = parentContext[p]
@@ -141,7 +144,6 @@ exports.compile = function(layout,cb,alternateRoot) {
       var template = layout.templates[slotName]
       var complete = function() {
         // render when all children are done
-        console.log("All templates compiled: " + layout.context.name)
         renderView(layout.source,layout.context,cb)
       }
 
@@ -152,7 +154,6 @@ exports.compile = function(layout,cb,alternateRoot) {
       }
 
       if(!util.isArray(template)) {
-        console.log("basic template: " + slotName)
         // compile the template into a string and put it into the context
         template = mergeContext(template,layout.context)
         compileChild(template,function(renderedView) {
@@ -160,16 +161,12 @@ exports.compile = function(layout,cb,alternateRoot) {
           complete()
         })
       } else {
-        console.log("list of templates: " + slotName)
         // compile each of the list of templates into strings
         // then concatenate them into one big string in the context
         var templateList = template
         var compiledTemplates = []
         var subCount = templateList.length
-        console.log("Child count: " + subCount)
         var subComplete = function() {
-          console.log("subcomplete")
-          console.log(compiledTemplates)
           subCount--
           if (subCount == 0) {
             layout.context[slotName] = compiledTemplates.join("\n")
@@ -189,7 +186,7 @@ exports.compile = function(layout,cb,alternateRoot) {
 
   } else {
     // if no kids, go straight to rendering
-    console.log("No templates, processing")
+    console.log("No sub-templates, processing " + layout.source)
     renderView(layout.source,layout.context,cb)
   }
 
