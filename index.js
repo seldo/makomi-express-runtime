@@ -98,8 +98,8 @@ exports.renderFragment = function(source,context) {
  */
 exports.compile = function(layout,cb,alternateRoot) {
 
-  console.log("Processing:")
-  console.log(layout)
+  //console.log("Processing:")
+  //console.log(layout)
 
   if(!layout.context) layout.context = {}
 
@@ -135,7 +135,7 @@ exports.compile = function(layout,cb,alternateRoot) {
 
     // handle trivial case
     if (_.size(layout.templates) == 0) {
-      console.log("Empty set of templates")
+      //console.log("Empty set of templates")
       renderView(layout.source,layout.context,cb)
     }
 
