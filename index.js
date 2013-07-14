@@ -187,7 +187,7 @@ exports.compile = function(layout,cb,alternateRoot) {
 
   } else {
     // if no kids, go straight to rendering
-    console.log("No sub-templates, processing " + layout.source)
+    //console.log("No sub-templates, processing " + layout.source)
     renderView(layout.source,layout.context,cb)
   }
 

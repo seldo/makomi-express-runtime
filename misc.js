@@ -5,6 +5,8 @@
 /**
  * A special controller for socket.io
  */
+/*
+FIXME: this should become a router that sends events to equivalently-named methods in the controllers
 exports.socketController = {
   start: function(socketServer) {
     socketServer.on('sconnection', function (client,session) {
@@ -25,3 +27,4 @@ exports.socketController = {
     });
   }
 }
+*/
