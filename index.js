@@ -115,6 +115,7 @@ exports.compile = function(layout,cb,alternateRoot) {
         cb('') // return blank string
       } else {
         var renderedView = exports.renderFragment(data,context)
+        //console.log("Passing back " + renderedView)
         cb(renderedView)
       }
     })
@@ -166,7 +167,7 @@ exports.compile = function(layout,cb,alternateRoot) {
         // then concatenate them into one big string in the context
         var templateList = template
         var compiledTemplates = []
-        var subCount = templateList.length
+        var subCount = _.keys(templateList).length // some items may be missing
         var subComplete = function() {
           subCount--
           if (subCount == 0) {
@@ -175,6 +176,7 @@ exports.compile = function(layout,cb,alternateRoot) {
           }
         }
         templateList.forEach(function(template,index) {
+          console.log("in " + index + " of " + templateList.length)
           template = mergeContext(template,layout.context)
           compileChild(template,function(renderedView,indexReturned) {
             compiledTemplates[indexReturned] = renderedView
