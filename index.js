@@ -176,7 +176,6 @@ exports.compile = function(layout,cb,alternateRoot) {
           }
         }
         templateList.forEach(function(template,index) {
-          console.log("in " + index + " of " + templateList.length)
           template = mergeContext(template,layout.context)
           compileChild(template,function(renderedView,indexReturned) {
             compiledTemplates[indexReturned] = renderedView
