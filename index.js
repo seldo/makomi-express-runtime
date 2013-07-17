@@ -149,6 +149,8 @@ exports.compile = function(layout,cb,alternateRoot) {
         renderView(layout.source,layout.context,cb)
       }
 
+      // FIXME: all this ref nonsense is needlessly complicated
+      // if we just use _.each() instead of for we get the index for free
       var compileChild = function(template,cb,ref) {
         exports.compile(template,function(renderedView) {
           cb(renderedView,ref)
