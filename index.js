@@ -68,21 +68,6 @@ hb.registerHelper("each_with_key", function(obj, options) {
  * @returns {*}
  */
 exports.renderFragment = function(source,context) {
-
-  /**
-   * HELPER &Recurse
-   *
-   * Usage: {{&Recurse array}}
-   *
-   * When using renderFragment, calling Recurse will call the current
-   * template again using a new object.
-   * This works because "source" is supplied by renderFragment itself. Magic!
-   */
-  hb.registerHelper('Recurse',function(children, options) {
-    var template = hb.compile(source);
-    return template(children);
-  });
-
   var template = hb.compile(source);
   return template(context)
 }
