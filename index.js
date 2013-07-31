@@ -67,9 +67,9 @@ hb.registerHelper("each_with_key", function(obj, options) {
  * @param context
  * @returns {*}
  */
-exports.renderFragment = function(source,context) {
+exports.renderFragment = function(source,context,cb) {
   var template = hb.compile(source);
-  return template(context)
+  cb(template(context))
 }
 
 /**
@@ -99,9 +99,10 @@ exports.compile = function(layout,cb,alternateRoot) {
         console.log("Failed to read template file at " + templateFile)
         cb('') // return blank string
       } else {
-        var renderedView = exports.renderFragment(data,context)
-        //console.log("Passing back " + renderedView)
-        cb(renderedView)
+        exports.renderFragment(data,context,function(renderedView) {
+          console.log("Passing back " + renderedView)
+          cb(renderedView)
+        })
       }
     })
   }
@@ -126,29 +127,26 @@ exports.compile = function(layout,cb,alternateRoot) {
     }
 
     // replace all named slots
-    for(var slotName in layout.templates) {
+    _.each(layout.templates,function(template,slotName) {
 
-      var template = layout.templates[slotName]
       var complete = function() {
         // render when all children are done
         renderView(layout.source,layout.context,cb)
       }
 
-      // FIXME: all this ref nonsense is needlessly complicated
-      // if we just use _.each() instead of for we get the index for free
-      var compileChild = function(template,cb,ref) {
+      var compileChild = function(template,cb) {
         exports.compile(template,function(renderedView) {
-          cb(renderedView,ref)
+          cb(renderedView)
         },alternateRoot)
       }
 
       if(!util.isArray(template)) {
         // compile the template into a string and put it into the context
         template = mergeContext(template,layout.context)
-        compileChild(template,function(renderedView,slotReturned) {
-          layout.context[slotReturned] = renderedView
+        compileChild(template,function(renderedView) {
+          layout.context[slotName] = renderedView
           complete()
-        },slotName)
+        })
       } else {
         // compile each of the list of templates into strings
         // then concatenate them into one big string in the context
@@ -164,14 +162,14 @@ exports.compile = function(layout,cb,alternateRoot) {
         }
         templateList.forEach(function(template,index) {
           template = mergeContext(template,layout.context)
-          compileChild(template,function(renderedView,indexReturned) {
-            compiledTemplates[indexReturned] = renderedView
+          compileChild(template,function(renderedView) {
+            compiledTemplates[index] = renderedView
             subComplete()
-          },index)
+          })
         })
       }
 
-    }
+    })
 
   } else {
     // if no kids, go straight to rendering
