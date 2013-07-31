@@ -100,7 +100,6 @@ exports.compile = function(layout,cb,alternateRoot) {
         cb('') // return blank string
       } else {
         exports.renderFragment(data,context,function(renderedView) {
-          console.log("Passing back " + renderedView)
           cb(renderedView)
         })
       }
