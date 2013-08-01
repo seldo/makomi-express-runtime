@@ -12,7 +12,7 @@ var fs = require('fs'),
 exports.templateRoot = process.cwd() + '/views/'
 exports.templateExtension = '.hbs'
 exports.util = require('./util.js')
-exports.misc = require('./misc.js')
+exports.sockets = require('./sockets.js')
 
 // HELPER: #key_value
 //
