@@ -11,7 +11,7 @@ var fs = require('fs'),
 
 exports.templateRoot = process.cwd() + '/views/'
 exports.templateExtension = '.hbs'
-exports.util = require('./util.js')
+exports.datasources = require('./datasources.js')
 exports.sockets = require('./sockets.js')
 
 // HELPER: #key_value
