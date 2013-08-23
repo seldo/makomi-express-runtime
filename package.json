@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "handlebars": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "fs-extra": "*"
   }
 }
 
